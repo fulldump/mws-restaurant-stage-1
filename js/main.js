@@ -145,9 +145,9 @@ resetRestaurants = (restaurants) => {
  * Create all restaurants HTML and add them to the webpage.
  */
 fillRestaurantsHTML = (restaurants = self.restaurants) => {
-  const ul = document.getElementById('restaurants-list');
+  const div = document.getElementById('restaurants-list');
   restaurants.forEach(restaurant => {
-    ul.append(createRestaurantHTML(restaurant));
+    div.append(createRestaurantHTML(restaurant));
   });
   addMarkersToMap();
 }
@@ -156,31 +156,55 @@ fillRestaurantsHTML = (restaurants = self.restaurants) => {
  * Create restaurant HTML.
  */
 createRestaurantHTML = (restaurant) => {
-  const li = document.createElement('li');
+  const article = document.createElement('article');
 
-  const image = document.createElement('img');
-  image.className = 'restaurant-img';
-  image.src = DBHelper.imageUrlForRestaurant(restaurant);
-  li.append(image);
+  article.classList.add('restaurant');
 
-  const name = document.createElement('h1');
-  name.innerHTML = restaurant.name;
-  li.append(name);
+  const header = document.createElement('header');
+  header.className = 'restaurant__header';
+  article.append(header);
 
-  const neighborhood = document.createElement('p');
-  neighborhood.innerHTML = restaurant.neighborhood;
-  li.append(neighborhood);
+  {
+    // TODO: Layout is depending on image aspect ratio!
+    const image = document.createElement('img');
+    image.className = 'restaurant__image';
+    image.src = DBHelper.imageUrlForRestaurant(restaurant);
+    header.append(image);
 
-  const address = document.createElement('p');
-  address.innerHTML = restaurant.address;
-  li.append(address);
+    const name = document.createElement('h1');
+    name.classList.add('restaurant__name');
+    name.innerHTML = restaurant.name; // TODO: use textContent
+    header.append(name);
+  }
 
-  const more = document.createElement('a');
-  more.innerHTML = 'View Details';
-  more.href = DBHelper.urlForRestaurant(restaurant);
-  li.append(more)
+  const main = document.createElement('main');
+  main.className = 'restaurant__main';
+  article.append(main);
 
-  return li
+  {
+
+    const neighborhood = document.createElement('p');
+    neighborhood.innerHTML = restaurant.neighborhood; // TODO: use textContent
+    main.append(neighborhood);
+
+    const address = document.createElement('p');
+    address.innerHTML = restaurant.address; // TODO: use textContent
+    main.append(address);
+  }
+
+  const footer = document.createElement('footer');
+  footer.className = 'restaurant__footer';
+  article.append(footer);
+
+  {
+    const more = document.createElement('a');
+    more.className = 'restaurant__more';
+    more.innerHTML = 'View Details';
+    more.href = DBHelper.urlForRestaurant(restaurant);
+    footer.append(more);
+  }
+
+  return article;
 }
 
 /**
