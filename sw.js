@@ -47,7 +47,12 @@ function fetchCachedPreferred(request) {
 		// If not cached, request is fetched, cached and returned, so
 		// that next time could be available offline.
 		return fetch(request).then(function(response) {
-			cache.put(request, response.clone());
+			const responseCloned = response.clone();
+			caches.open(staticsCache).then(function(cache) {
+				cache.put(request, responseCloned);
+			}).catch(function() {
+				// TODO: handle exception
+			});
 			return response;
 		});
 
@@ -62,7 +67,12 @@ function fetchCachedPreferred(request) {
 function fetchNetworkPreferred(request) {
 	// Always tries to fetch the resource
 	return fetch(request).then(function(response) {
-		cache.put(request, response.clone());
+		const responseCloned = response.clone();
+		caches.open(dataCache).then(function(cache) {
+			cache.put(request, responseCloned);
+		}).catch(function(xxx) {
+			// TODO: handle exception
+		});
 		return response;
 	}).catch(function() {
 		// If network is not available, try to get resource from cache
