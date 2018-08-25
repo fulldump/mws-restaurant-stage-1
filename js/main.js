@@ -15,11 +15,11 @@ var markers = [];
 
   navigator.serviceWorker.register('sw.js', {scope:'/'}).then(function(r){
 
-    console.log(navigator.serviceWorker.controller);
     console.log('waiting:', r.waiting);
     console.log('installing', r.installing);
 
     r.addEventListener('updatefound', function(){
+      // TODO: show toast to allow the user update
       console.log('update found');
     });
 
