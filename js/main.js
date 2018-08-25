@@ -2,7 +2,32 @@ let restaurants,
   neighborhoods,
   cuisines
 var newMap
-var markers = []
+var markers = [];
+
+/**
+ * Register service worker
+ */
+(function() {
+  // All inside this function scope will be forced to be in strict mode
+  'strict';
+
+  if (!navigator.serviceWorker) return;
+
+  navigator.serviceWorker.register('sw.js', {scope:'/'}).then(function(r){
+
+    console.log(navigator.serviceWorker.controller);
+    console.log('waiting:', r.waiting);
+    console.log('installing', r.installing);
+
+    r.addEventListener('updatefound', function(){
+      console.log('update found');
+    });
+
+  }).catch(function() {
+    console.log('problem :_(');
+  });
+
+})();
 
 /**
  * Fetch neighborhoods and cuisines as soon as the page is loaded.
