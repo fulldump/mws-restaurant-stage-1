@@ -74,7 +74,8 @@ initMap = () => {
 	self.newMap = L.map('map', {
 				center: [40.722216, -73.987501],
 				zoom: 12,
-				scrollWheelZoom: false
+				scrollWheelZoom: false,
+				keyboard: false,
 			});
 	L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.jpg70?access_token={mapboxToken}', {
 		mapboxToken: PRIVATE_MAPBOX_APIKEY,
@@ -207,5 +208,5 @@ addMarkersToMap = (restaurants = self.restaurants) => {
 		}
 		self.markers.push(marker);
 	});
-
+	removeTabindex(document.getElementById('map'));
 }

@@ -150,6 +150,10 @@ nav h1 a {
   height: 100%;
 }
 
+.map .leaflet-control-attribution {
+  display: none;
+}
+
 /* ====================== Restaurant Filtering ====================== */
 
 .filter-options {
@@ -182,6 +186,11 @@ nav h1 a {
   margin: 10px;
   padding: 0 10px;
   width: 200px;
+}
+
+.filter-options select:focus {
+  background-color: orange;
+  color: black;
 }
 
 /* ====================== Restaurant Listing ======================
@@ -255,6 +264,12 @@ nav h1 a {
   text-decoration: none;
   text-transform: uppercase;
   border-radius: 23px;
+}
+
+.restaurant__more:focus {
+  color: white;
+  background-color: dodgerblue;
+  outline: none;
 }
 
 @media screen and (min-width: 600px) {
