@@ -11,10 +11,10 @@
 
 'strict';
 
-const staticsCache = 'statics-cache'; // Things that never changes (fonts, imgs)
-const dataCache = 'data-cache'; // Thigs that could change (html, json, etc)
-
-const staticDestinations = ['image', 'font', 'video'];
+const
+	staticsCache = 'statics-cache', // Things that never changes (fonts, imgs)
+	dataCache = 'data-cache', // Thigs that could change (html, json, etc)
+	staticDestinations = ['image', 'font', 'video'];
 
 self.addEventListener('install', function(e) {
 	console.log('service-worker-install!!!');

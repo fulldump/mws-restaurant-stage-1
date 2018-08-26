@@ -1,8 +1,7 @@
 let restaurants,
 	neighborhoods,
-	cuisines
-var newMap
-var markers = [];
+	cuisines,
+	markers = [];
 
 /**
  * Register service worker
