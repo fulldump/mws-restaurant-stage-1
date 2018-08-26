@@ -160,7 +160,7 @@ createRestaurantHTML = (restaurant) => {
 		image.alt = restaurant.photograph_description;
 		header.append(image);
 
-		const name = document.createElement('h1');
+		const name = document.createElement('h2');
 		name.classList.add('restaurant__name');
 		name.textContent = restaurant.name; // textContent instead of innerHTML
 		header.append(name);
@@ -188,6 +188,7 @@ createRestaurantHTML = (restaurant) => {
 		const more = document.createElement('a');
 		more.className = 'restaurant__more';
 		more.textContent = 'View Details'; // textContent instead of innerHTML
+		more.setAttribute('aria-label', 'View ' + restaurant.name + ' details');
 		more.href = DBHelper.urlForRestaurant(restaurant);
 		footer.append(more);
 	}
