@@ -156,7 +156,7 @@ createRestaurantHTML = (restaurant) => {
 		// TODO: Layout is depending on image aspect ratio!
 		const image = document.createElement('img');
 		image.className = 'restaurant__image';
-		image.src = DBHelper.imageUrlForRestaurant(restaurant);
+		DBHelper.imageSetRestaurant(image, restaurant);
 		image.alt = restaurant.photograph_description;
 		header.append(image);
 

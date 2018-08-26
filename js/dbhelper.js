@@ -154,6 +154,22 @@ class DBHelper {
 	}
 
 	/**
+	 * Restaurant image source set
+	 */
+	static imageSetRestaurant(image, restaurant, sizes) {
+
+		// Fallback
+		image.src = DBHelper.imageUrlForRestaurant(restaurant);
+
+		// Responsive images
+		let s = sizes || ['200', '600', '900'];
+		image.srcset = s
+			.map(v => `/img/${v}w/${restaurant.photograph} ${v}w`)
+			.join(',');
+		image.sizes = '100vw';
+	}
+
+	/**
 	 * Map marker for a restaurant.
 	 */
 	 static mapMarkerForRestaurant(restaurant, map) {
