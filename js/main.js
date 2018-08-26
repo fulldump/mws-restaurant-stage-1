@@ -33,7 +33,7 @@ fillNeighborhoodsHTML = (neighborhoods = self.neighborhoods) => {
 	const select = document.getElementById('neighborhoods-select');
 	neighborhoods.forEach(neighborhood => {
 		const option = document.createElement('option');
-		option.innerHTML = neighborhood;
+		option.textContent = neighborhood; // textContent instead of innerHTML
 		option.value = neighborhood;
 		select.append(option);
 	});
@@ -61,7 +61,7 @@ fillCuisinesHTML = (cuisines = self.cuisines) => {
 
 	cuisines.forEach(cuisine => {
 		const option = document.createElement('option');
-		option.innerHTML = cuisine;
+		option.textContent = cuisine; // textContent instead of innerHTML
 		option.value = cuisine;
 		select.append(option);
 	});
@@ -160,7 +160,7 @@ createRestaurantHTML = (restaurant) => {
 
 		const name = document.createElement('h1');
 		name.classList.add('restaurant__name');
-		name.innerHTML = restaurant.name; // TODO: use textContent
+		name.textContent = restaurant.name; // textContent instead of innerHTML
 		header.append(name);
 	}
 
@@ -170,11 +170,11 @@ createRestaurantHTML = (restaurant) => {
 
 	{
 		const neighborhood = document.createElement('p');
-		neighborhood.innerHTML = restaurant.neighborhood; // TODO: use textContent
+		neighborhood.textContent = restaurant.neighborhood; // textContent instead of innerHTML
 		main.append(neighborhood);
 
 		const address = document.createElement('p');
-		address.innerHTML = restaurant.address; // TODO: use textContent
+		address.textContent = restaurant.address; // textContent instead of innerHTML
 		main.append(address);
 	}
 
@@ -185,7 +185,7 @@ createRestaurantHTML = (restaurant) => {
 	{
 		const more = document.createElement('a');
 		more.className = 'restaurant__more';
-		more.innerHTML = 'View Details';
+		more.textContent = 'View Details'; // textContent instead of innerHTML
 		more.href = DBHelper.urlForRestaurant(restaurant);
 		footer.append(more);
 	}
