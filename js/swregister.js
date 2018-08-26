@@ -11,12 +11,12 @@
 
 	navigator.serviceWorker.register('sw.js', {scope:'/'}).then(function(r){
 
-		console.log('waiting:', r.waiting);
-		console.log('installing', r.installing);
+		//console.log('waiting:', r.waiting);
+		//console.log('installing', r.installing);
 
 		r.addEventListener('updatefound', function(){
 			// TODO: show toast to allow the user update
-			console.log('update found');
+			//console.log('update found');
 		});
 
 	}).catch(function() {
