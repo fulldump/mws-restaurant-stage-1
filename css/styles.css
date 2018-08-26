@@ -351,19 +351,19 @@ nav h1 a {
 
 @media screen and (min-width: 900px) {
 
-  header {
+  [data-page="restaurant"] header {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
   }
 
-  .maincontent {
+  [data-page="restaurant"] .maincontent {
     width: 50%;
     margin-top: 134px; /* TODO: too fragile, refactor with flexbox */
   }
 
-  .map-container {
+  [data-page="restaurant"] .map-container {
     /* TODO: map layout is too fragile, refactor with flexbox */
     position: fixed;
     top: 119px;
@@ -373,7 +373,7 @@ nav h1 a {
     height: auto;
   }
 
-  footer {
+  [data-page="restaurant"] .footer {
     position: fixed;
     bottom: 0;
     left: 0;
@@ -384,11 +384,11 @@ nav h1 a {
 
 @media screen and (min-width: 1200px) {
 
-  .maincontent {
+  [data-page="restaurant"] .maincontent {
     width: 600px;
   }
 
-  .map-container {
+  [data-page="restaurant"] .map-container {
     left: 600px;
     width: auto;
   }
