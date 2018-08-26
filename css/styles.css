@@ -246,7 +246,7 @@ nav h1 a {
 
 .restaurant__more {
   background-color: orange;
-  color: #fff;
+  color: #333; /* Instead of white to improve accessibility */
   display: inline-block;
   font-size: 10pt;
   margin: 0;
