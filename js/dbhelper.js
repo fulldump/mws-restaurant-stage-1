@@ -15,11 +15,17 @@ class DBHelper {
 	 * Fetch all restaurants.
 	 */
 	static fetchRestaurants() {
-		return fetch(DBHelper.BASE_URL + '/restaurants')
-			.then(response => response.json())
-			.catch(function(error) {
-				console.error(error);
-			});
+		if (!DBHelper.prototype.restaurants_promise) {
+			DBHelper.prototype.restaurants_promise = fetch(DBHelper.BASE_URL + '/restaurants')
+				.then(response => response.json())
+				.catch(function(error) {
+					console.error(error);
+				});
+		}
+
+		// TODO: Using prototype attribute to save status of static methods
+		// is a workaround, but DBHelper is being used as a global variable...
+		return DBHelper.prototype.restaurants_promise;
 	}
 
 	/**
