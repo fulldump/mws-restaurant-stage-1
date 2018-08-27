@@ -49,11 +49,11 @@ function putRestaurant(restaurant, callback) {
 	openDb(db => {
 		let tx = db.transaction([COLLECTION_RESTAURANTS], 'readwrite');
 		tx.oncomplete = function(e) {
-			callback(null, e);
+			callback && callback(null, e);
 		};
 		tx.onerror = function(e) {
 			console.log('transaction error', e);
-			callback(e, null);
+			callback && callback(e, null);
 		};
 
 		tx.objectStore(COLLECTION_RESTAURANTS).put(restaurant);
@@ -81,10 +81,10 @@ function getRestaurant(id, callback) {
 		let request = restaurantsStore.get(7);
 
 		request.onerror = function(event) {
-			callback(e, null);
+			callback && callback(e, null);
 		};
 		request.onsuccess = function(event) {
-			callback(null, this.result);
+			callback && callback(null, this.result);
 		};
 	});
 }
@@ -95,12 +95,11 @@ function listRestaurants(callback) {
 
 		let tx = db.transaction([COLLECTION_RESTAURANTS], 'readonly');
 		tx.oncomplete = function(e) {
-			//console.log('read transaction complete', e);
-			callback(null, restaurants);
+			callback && callback(null, restaurants);
 		}
 		tx.onerror = function(e) {
 			console.log('read transaction error', e);
-			callback(e, null);
+			callback && callback(e, null);
 		}
 
 		tx.objectStore(COLLECTION_RESTAURANTS).openCursor().onsuccess = function(event) {
@@ -128,11 +127,25 @@ class DBHelper {
 	 */
 	static fetchRestaurants() {
 		if (!DBHelper.prototype.restaurants_promise) {
-			DBHelper.prototype.restaurants_promise = fetch(DBHelper.BASE_URL + '/restaurants')
-				.then(response => response.json())
-				.catch(function(error) {
-					console.error(error);
-				});
+			DBHelper.prototype.restaurants_promise = new Promise(function(resolve, reject) { // TODO: creating a promise is not necessary
+				// First, try to fetch from network
+				fetch(DBHelper.BASE_URL + '/restaurants')
+					.then(response => response.json())
+					.then(function(restaurants) {
+						restaurants.map(restaurant => putRestaurant(restaurant));
+						resolve(restaurants);
+					})
+					.catch(function(error) {
+						// If network is not working, fallback to local database
+						listRestaurants(function(error, restaurants) {
+							if (error) {
+								reject(error);
+								return;
+							}
+							resolve(restaurants);
+						});
+					});
+			});
 		}
 
 		// TODO: Using prototype attribute to save status of static methods
@@ -144,8 +157,32 @@ class DBHelper {
 	 * Fetch a restaurant by its ID.
 	 */
 	static fetchRestaurantById(id) {
-		return fetch(DBHelper.BASE_URL + '/restaurants/' + id)
-			.then(response => response.json());
+		return new Promise(function(resolve, reject) { // TODO: not necessary, catch can be captured later
+			// First, try to fetch from network
+			fetch(DBHelper.BASE_URL + '/restaurants/' + id)
+				.then(response => response.json())
+				.then(function(restaurant) {
+					// Save restaurant to make it available offline in the future
+					putRestaurant(restaurant, function() {
+						// TODO: handle error on save
+					});
+					resolve(restaurant);
+				})
+				.catch(function() {
+					// If network is not working, fallback to local database
+					getRestaurant(id, function(error, restaurant) {
+						if (error) {
+							reject(error);
+							return;
+						}
+						if (restaurant) {
+							resolve(restaurant);
+							return;
+						}
+						reject('NotFound');
+					})
+				});
+		})
 	}
 
 	/**
