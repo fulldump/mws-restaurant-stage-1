@@ -1,6 +1,118 @@
 /**
  * Common database helper functions.
  */
+
+const COLLECTION_RESTAURANTS = 'restaurants';
+
+function openDb(callback) {
+	let db;
+	let DatabaseName = 'RestaurantReviews';
+	let DatabaseVersion = 13;
+
+	let dbOpenRequest = indexedDB.open(DatabaseName, DatabaseVersion);
+	dbOpenRequest.onerror = function() {
+		console.log(this.error.name + ':', this.error.message);
+	};
+	dbOpenRequest.onsuccess = function(e) {
+		db = this.result;
+
+		// TODO: interesting arguments:
+		//  - this.result (IDBDatabase )
+		//  - e (the event) // Event
+
+		callback(db);
+	};
+	dbOpenRequest.onupgradeneeded = function(e) {
+		console.log('dbOpenRequest UPGRADE', e); // IDBVersionChangeEvent
+		console.log(this.result); // IDBDatabase 
+
+		// TODO: interesting values:
+		//  - this.result // IDBDatabase
+		//  - e // IDBVersionChangeEvent
+
+		let db = this.result;
+
+		// Create collection
+		let restaurantsStore = db.createObjectStore(COLLECTION_RESTAURANTS, { keyPath: 'id' });
+
+		// TODO: interesting values:
+		//  - restaurantsStore // IDBObjectStore
+	};
+}
+
+/**
+ * Put a restaurant with key 'id'. If repeated it will be overwritten.
+ * Callback is a function with two parameters (err, event)
+ * If err === null -> all is ok.
+ */
+function putRestaurant(restaurant, callback) {
+	openDb(db => {
+		let tx = db.transaction([COLLECTION_RESTAURANTS], 'readwrite');
+		tx.oncomplete = function(e) {
+			callback(null, e);
+		};
+		tx.onerror = function(e) {
+			console.log('transaction error', e);
+			callback(e, null);
+		};
+
+		tx.objectStore(COLLECTION_RESTAURANTS).put(restaurant);
+	});
+}
+
+/**
+ * Retrieve a restaurant by id
+ * Callback is a function with two parameters (err, restaurant)
+ * if err !== null -> Some error happend
+ * else if restaurant -> data is ok
+ * else -> restaurant do not exist
+ */
+function getRestaurant(id, callback) {
+	openDb(db => {
+		let tx = db.transaction([COLLECTION_RESTAURANTS], 'readonly');
+		tx.oncomplete = function(e) {
+			//console.log('read transaction complete', e);
+		}
+		tx.onerror = function(e) {
+			console.log('read transaction error', e);
+		}
+
+		let restaurantsStore = tx.objectStore(COLLECTION_RESTAURANTS);
+		let request = restaurantsStore.get(7);
+
+		request.onerror = function(event) {
+			callback(e, null);
+		};
+		request.onsuccess = function(event) {
+			callback(null, this.result);
+		};
+	});
+}
+
+function listRestaurants(callback) {
+	openDb(db => {
+		let restaurants = [];
+
+		let tx = db.transaction([COLLECTION_RESTAURANTS], 'readonly');
+		tx.oncomplete = function(e) {
+			//console.log('read transaction complete', e);
+			callback(null, restaurants);
+		}
+		tx.onerror = function(e) {
+			console.log('read transaction error', e);
+			callback(e, null);
+		}
+
+		tx.objectStore(COLLECTION_RESTAURANTS).openCursor().onsuccess = function(event) {
+			let cursor = this.result;
+			if (cursor) {
+				restaurants.push(cursor.value);
+				cursor.continue();
+			}
+		};
+	});
+}
+
 class DBHelper {
 
 	/**
