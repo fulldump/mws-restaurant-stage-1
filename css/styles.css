@@ -222,6 +222,16 @@ nav h1 a {
   position: relative;
 }
 
+.restaurant_favorite {
+  position: absolute;
+  top: -28px;
+  right: 5px;
+  color: red;
+  font-size: 85px;
+  text-shadow: 3px 3px 6px #585858;
+  font-family: monospace;
+}
+
 .restaurant__image {
   display: block;
   width: 100%;
@@ -311,6 +321,107 @@ nav h1 a {
   padding: 2px 0;
   text-align: center;
   text-transform: uppercase;
+}
+
+.details__favorite {
+  text-align: center;
+}
+
+/* TODO: remove dead code...
+.details__favorite__mark,
+.details__favorite__unmark {
+  padding: 5px 15px;
+  border: none;
+  border-radius: 32px;
+  font-size: 12pt;
+  cursor: pointer;
+  border: solid white 4px;
+}
+
+.details__favorite__mark:focus-within,
+.details__favorite__unmark:focus-within {
+  outline: none;
+  border: solid orange 4px;
+  border-radius: 32px;
+}
+
+.details__favorite__mark {
+  background-color: #333;
+  color: white;
+}
+
+.details__favorite__mark:before {
+  content: '♡';
+  font-family: monospace;
+  font-size: 200%;
+  vertical-align: middle;
+}
+
+.details__favorite__unmark {
+  display: none;
+  background-color: red;
+  color: white;
+}
+
+.details__favorite__unmark:before {
+  content: '♥';
+  font-family: monospace;
+  font-size: 200%;
+  vertical-align: middle;
+}
+
+.details__favorite[data-favorite="true"] .details__favorite__unmark {
+  display: inline;
+}
+
+.details__favorite[data-favorite="true"] .details__favorite__mark {
+  display: none;
+}
+*/
+
+.button-favorite {
+  padding: 5px 15px;
+  border: none;
+  border-radius: 32px;
+  font-size: 12pt;
+  min-width: 210px;
+
+  border: solid white 4px;
+  background: #333;
+  color: white;
+  cursor: pointer;
+
+  transition: background-color 0.2s ease;
+}
+
+.button-favorite:before {
+  content: '♡';
+  font-family: monospace;
+  font-size: 200%;
+  vertical-align: middle;
+}
+
+.button-favorite:after {
+  content: ' Mark as favorite';
+}
+
+.button-favorite:focus,
+.button-favorite:hover {
+  outline: none;
+  border: solid orange 4px;
+  border-radius: 32px;
+}
+
+.button-favorite[data-favorite="true"] {
+  background: red;
+}
+
+.button-favorite[data-favorite="true"]:before {
+  content: '♥';
+}
+
+.button-favorite[data-favorite="true"]:after {
+  content: ' Remove favorite';
 }
 
 .details__address {

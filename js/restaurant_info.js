@@ -64,12 +64,34 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
 	const cuisine = document.getElementById('restaurant-cuisine');
 	cuisine.textContent = restaurant.cuisine_type; // textContent instead of innerHTML
 
+	const button_favorite = document.querySelector('.button-favorite');
+	button_favorite.dataset.favorite = restaurant.is_favorite;
+	button_favorite.addEventListener('click', function(e) {
+		// Calculate new value
+		restaurant.is_favorite = !restaurant.is_favorite;
+
+		// Save value
+		DBHelper.favoriteRestaurant(restaurant.id, restaurant.is_favorite);
+
+		// Draw changes
+		drawFavorite(restaurant.is_favorite);
+	}, true);
+	drawFavorite(restaurant.is_favorite);
+
 	// fill operating hours
 	if (restaurant.operating_hours) {
 		fillRestaurantHoursHTML();
 	}
 	// fill reviews
 	fillReviewsHTML();
+}
+
+function drawFavorite(is_favorite) {
+	const button_favorite = document.querySelector('.button-favorite');
+	button_favorite.dataset.favorite = is_favorite;
+
+	var description = window.getComputedStyle(button_favorite, ':after').getPropertyValue('content');
+	button_favorite.setAttribute('aria-label', description);
 }
 
 /**

@@ -180,6 +180,14 @@ class DBHelper {
 		return fetch(DBHelper.BASE_URL + '/restaurants/' + id)
 			.then(response => response.json())
 			.then(function(restaurant) {
+
+				// Sanitize restaurant
+				if (restaurant.is_favorite === true || restaurant.is_favorite === "true") {
+					restaurant.is_favorite = true;
+				} else {
+					restaurant.is_favorite = false;
+				}
+
 				// Save restaurant to make it available offline in the future
 				DBHelper.putRestaurant(restaurant, function() {
 					// TODO: handle error on save
@@ -273,6 +281,18 @@ class DBHelper {
 			.catch(function(error) {
 				console.log(error);
 			});
+	}
+
+	static favoriteRestaurant(id, favorite) {
+		const url = `http://localhost:1337/restaurants/${id}/?is_favorite=${favorite}`;
+
+		DBHelper.fetchRestaurantById(id, function(restaurant) {
+			restaurant.is_favorite = favorite;
+			DBHelper.putRestaurant(restaurant);
+		});
+
+		// TODO: store this request to be processed when connection is back
+		return fetch(url, {method:'POST'});
 	}
 
 	/**
