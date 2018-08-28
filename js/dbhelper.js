@@ -69,7 +69,6 @@ function putRestaurant(restaurant, callback) {
  */
 function getRestaurant(id, callback) {
 	id = parseInt(id);
-	console.log(id);
 	openDb(db => {
 		let tx = db.transaction([COLLECTION_RESTAURANTS], 'readonly');
 		tx.oncomplete = function(e) {
@@ -129,16 +128,18 @@ class DBHelper {
 	 */
 	static fetchRestaurants() {
 		if (!DBHelper.prototype.restaurants_promise) {
-			DBHelper.prototype.restaurants_promise = new Promise(function(resolve, reject) { // TODO: creating a promise is not necessary
-				// First, try to fetch from network
-				fetch(DBHelper.BASE_URL + '/restaurants')
-					.then(response => response.json())
-					.then(function(restaurants) {
-						restaurants.map(restaurant => putRestaurant(restaurant));
-						resolve(restaurants);
-					})
-					.catch(function(error) {
-						// If network is not working, fallback to local database
+			// First, try to fetch from network
+			DBHelper.prototype.restaurants_promise = fetch(DBHelper.BASE_URL + '/restaurants')
+				.then(response => response.json())
+				.then(function(restaurants) {
+					// Save restaurants to make them available offline in the future
+					restaurants.map(restaurant => putRestaurant(restaurant));
+					return restaurants;
+				})
+				.catch(function() {
+					console.log('Network not working, fallback...')
+					// If network is not working, fallback to local database
+					return new Promise(function(resolve, reject) {
 						listRestaurants(function(error, restaurants) {
 							if (error) {
 								reject(error);
@@ -147,7 +148,7 @@ class DBHelper {
 							resolve(restaurants);
 						});
 					});
-			});
+				});
 		}
 
 		// TODO: Using prototype attribute to save status of static methods
@@ -159,19 +160,21 @@ class DBHelper {
 	 * Fetch a restaurant by its ID.
 	 */
 	static fetchRestaurantById(id) {
-		return new Promise(function(resolve, reject) { // TODO: not necessary, catch can be captured later
-			// First, try to fetch from network
-			fetch(DBHelper.BASE_URL + '/restaurants/' + id)
-				.then(response => response.json())
-				.then(function(restaurant) {
-					// Save restaurant to make it available offline in the future
-					putRestaurant(restaurant, function() {
-						// TODO: handle error on save
-					});
-					resolve(restaurant);
-				})
-				.catch(function() {
-					// If network is not working, fallback to local database
+
+		// First, try to fetch from network
+		return fetch(DBHelper.BASE_URL + '/restaurants/' + id)
+			.then(response => response.json())
+			.then(function(restaurant) {
+				// Save restaurant to make it available offline in the future
+				putRestaurant(restaurant, function() {
+					// TODO: handle error on save
+				});
+				return restaurant;
+			})
+			.catch(function() {
+				console.log(`Network not working for restaurant ${id}, fallback...`);
+				// When network is not working, fallback to local database
+				return new Promise(function(resolve, reject) {
 					getRestaurant(id, function(error, restaurant) {
 						if (error) {
 							reject(error);
@@ -184,7 +187,7 @@ class DBHelper {
 						reject('NotFound');
 					})
 				});
-		})
+			});
 	}
 
 	/**
