@@ -68,6 +68,8 @@ function putRestaurant(restaurant, callback) {
  * else -> restaurant do not exist
  */
 function getRestaurant(id, callback) {
+	id = parseInt(id);
+	console.log(id);
 	openDb(db => {
 		let tx = db.transaction([COLLECTION_RESTAURANTS], 'readonly');
 		tx.oncomplete = function(e) {
@@ -78,7 +80,7 @@ function getRestaurant(id, callback) {
 		}
 
 		let restaurantsStore = tx.objectStore(COLLECTION_RESTAURANTS);
-		let request = restaurantsStore.get(7);
+		let request = restaurantsStore.get(id);
 
 		request.onerror = function(event) {
 			callback && callback(e, null);
