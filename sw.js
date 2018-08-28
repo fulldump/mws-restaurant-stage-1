@@ -33,7 +33,10 @@ self.addEventListener('fetch', function(e) {
 		return;
 	}
 
-	e.respondWith(fetchNetworkPreferred(e.request));
+	let response = fetchNetworkPreferred(e.request);
+	if (response) {
+		e.respondWith(response);
+	}
 
 });
 
@@ -65,6 +68,12 @@ function fetchCachedPreferred(request) {
 }
 
 function fetchNetworkPreferred(request) {
+
+	let u = new URL(request.url);
+	if (u.origin == 'http://localhost:1337') {
+		return;
+	}
+
 	// Always tries to fetch the resource
 	return fetch(request).then(function(response) {
 		const responseCloned = response.clone();
