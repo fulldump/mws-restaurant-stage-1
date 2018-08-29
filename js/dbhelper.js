@@ -18,6 +18,14 @@ class DBHelper {
 	}
 
 	/**
+	 * Collection requests.
+	 * Temporary store offline requests
+	 */
+	static get COLLECTION_REQUESTS() {
+		return 'requests';
+	}
+
+	/**
 	 * Open database RestaurantReviews
 	 */
 	static openDb() {
@@ -25,7 +33,7 @@ class DBHelper {
 		return new Promise(function(resolve, reject) {
 			let db;
 			let DatabaseName = 'RestaurantReviews';
-			let DatabaseVersion = 14;
+			let DatabaseVersion = 15;
 
 			let dbOpenRequest = indexedDB.open(DatabaseName, DatabaseVersion);
 			dbOpenRequest.onerror = function() {
@@ -54,6 +62,7 @@ class DBHelper {
 				let restaurantsStore = db.createObjectStore(DBHelper.COLLECTION_RESTAURANTS, { keyPath: 'id' });
 				let reviewsStore = db.createObjectStore(DBHelper.COLLECTION_REVIEWS, { keyPath: 'id' });
 				reviewsStore.createIndex('restaurant_id', 'restaurant_id', { unique: false });
+				let requestsStore = db.createObjectStore(DBHelper.COLLECTION_REQUESTS, { keyPath: 'id' });
 
 				// TODO: interesting values:
 				//  - restaurantsStore // IDBObjectStore
@@ -183,6 +192,43 @@ class DBHelper {
 				tx.oncomplete = resolve;
 				tx.onerror = reject;
 				tx.objectStore(DBHelper.COLLECTION_REVIEWS).delete(reviewId);
+			});
+		});
+	}
+
+	/**
+	 * Put request.
+	 * Store an offline request.
+	 */
+	static putRequest(method, url, body) {
+		return DBHelper.openDb().then(db => {
+			return new Promise(function(resolve, reject) {
+				let tx = db.transaction([DBHelper.COLLECTION_REQUESTS], 'readwrite');
+				tx.oncomplete = resolve;
+				tx.onerror = reject;
+				tx.objectStore(DBHelper.COLLECTION_REQUESTS).put({
+					id: (new Date()).getTime(),
+					method,
+					url,
+					body,
+				});
+			}).then(function() {
+				DBHelper.retrySendRequests();
+			});
+		});
+	}
+
+	/**
+	 * Remove request by id.
+	 * Returns a promise with the result of the transaction.
+	 */
+	static removeRequest(id) {
+		return DBHelper.openDb().then(db => {
+			return new Promise(function(resolve, reject) {
+				let tx = db.transaction([DBHelper.COLLECTION_REQUESTS], 'readwrite');
+				tx.oncomplete = resolve;
+				tx.onerror = reject;
+				tx.objectStore(DBHelper.COLLECTION_REQUESTS).delete(id);
 			});
 		});
 	}
@@ -338,7 +384,7 @@ class DBHelper {
 		});
 
 		// TODO: store this request to be processed when connection is back
-		return fetch(url, {method:'POST'});
+		return DBHelper.putRequest('POST', url, '');
 	}
 
 	static fetchRestaurantReviews(id) {
@@ -395,7 +441,7 @@ class DBHelper {
 	}
 
 	static retrySendReviews() {
-		DBHelper.openDb().then(db => {
+		return DBHelper.openDb().then(db => {
 			let reviews = [];
 			let tx = db.transaction([DBHelper.COLLECTION_REVIEWS], 'readonly');
 			tx.objectStore(DBHelper.COLLECTION_REVIEWS).openCursor().onsuccess = function(event) {
@@ -407,6 +453,25 @@ class DBHelper {
 					}
 					cursor.continue();
 				}
+			};
+		});
+	}
+
+	static retrySendRequests() {
+		return DBHelper.openDb().then(db => {
+			let tx = db.transaction([DBHelper.COLLECTION_REQUESTS], 'readonly');
+			tx.objectStore(DBHelper.COLLECTION_REQUESTS).openCursor().onsuccess = function(event) {
+				let cursor = this.result;
+				if (!cursor) {
+					return;
+				}
+				var request = cursor.value;
+				return fetch(request.url, {
+					method: request.method,
+					body: request.body,
+				}).then(function() {
+					DBHelper.removeRequest(request.id).then(DBHelper.retrySendRequests);
+				});
 			};
 		});
 	}
@@ -461,6 +526,7 @@ window.addEventListener('online',  function(e) {
 	document.body.classList.remove('offline');
 	// Try to resend info
 	DBHelper.retrySendReviews();
+	DBHelper.retrySendRequests();
 });
 
 window.addEventListener('offline', function(e) {
@@ -469,6 +535,7 @@ window.addEventListener('offline', function(e) {
 
 if (navigator.onLine) {
 	DBHelper.retrySendReviews();
+	DBHelper.retrySendRequests();
 } else {
 	document.body.classList.add('offline');
 }
