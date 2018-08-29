@@ -127,7 +127,7 @@ nav h1 a {
 
 /* Add a color to all links inside the list */
 .breadcrumb li a {
-    color: #0275d8;
+    color: #A81800;
     text-decoration: none;
 }
 
@@ -222,6 +222,16 @@ nav h1 a {
   position: relative;
 }
 
+.restaurant_favorite {
+  position: absolute;
+  top: -28px;
+  right: 5px;
+  color: red;
+  font-size: 85px;
+  text-shadow: 3px 3px 6px #585858;
+  font-family: monospace;
+}
+
 .restaurant__image {
   display: block;
   width: 100%;
@@ -281,10 +291,27 @@ nav h1 a {
 
 }
 
+/* ====================== Offline icon ============================ */
+.offline-icon {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 9999;
+  display: none;
+  color: yellow;
+  text-shadow: black 1px 1px 1px;
+  font-size: 32px;
+  padding: 6px 12px;
+}
+
+.offline .offline-icon {
+  display: block;
+}
+
 /* ====================== Restaurant Details ====================== */
 
 .details__name {
-  color: #f18200;
+  color: #A81800;
   font-family: Arial,sans-serif;
   font-size: 20pt;
   font-weight: 200;
@@ -313,6 +340,107 @@ nav h1 a {
   text-transform: uppercase;
 }
 
+.details__favorite {
+  text-align: center;
+}
+
+/* TODO: remove dead code...
+.details__favorite__mark,
+.details__favorite__unmark {
+  padding: 5px 15px;
+  border: none;
+  border-radius: 32px;
+  font-size: 12pt;
+  cursor: pointer;
+  border: solid white 4px;
+}
+
+.details__favorite__mark:focus-within,
+.details__favorite__unmark:focus-within {
+  outline: none;
+  border: solid orange 4px;
+  border-radius: 32px;
+}
+
+.details__favorite__mark {
+  background-color: #333;
+  color: white;
+}
+
+.details__favorite__mark:before {
+  content: '♡';
+  font-family: monospace;
+  font-size: 200%;
+  vertical-align: middle;
+}
+
+.details__favorite__unmark {
+  display: none;
+  background-color: red;
+  color: white;
+}
+
+.details__favorite__unmark:before {
+  content: '♥';
+  font-family: monospace;
+  font-size: 200%;
+  vertical-align: middle;
+}
+
+.details__favorite[data-favorite="true"] .details__favorite__unmark {
+  display: inline;
+}
+
+.details__favorite[data-favorite="true"] .details__favorite__mark {
+  display: none;
+}
+*/
+
+.button-favorite {
+  padding: 5px 15px;
+  border: none;
+  border-radius: 32px;
+  font-size: 12pt;
+  min-width: 210px;
+
+  border: solid white 4px;
+  background: #333;
+  color: white;
+  cursor: pointer;
+
+  transition: background-color 0.2s ease;
+}
+
+.button-favorite:before {
+  content: '♡';
+  font-family: monospace;
+  font-size: 200%;
+  vertical-align: middle;
+}
+
+.button-favorite:after {
+  content: ' Mark as favorite';
+}
+
+.button-favorite:focus,
+.button-favorite:hover {
+  outline: none;
+  border: solid orange 4px;
+  border-radius: 32px;
+}
+
+.button-favorite[data-favorite="true"] {
+  background: red;
+}
+
+.button-favorite[data-favorite="true"]:before {
+  content: '♥';
+}
+
+.button-favorite[data-favorite="true"]:after {
+  content: ' Remove favorite';
+}
+
 .details__address {
   font-size: 12pt;
   margin: 10px 40px; /* Add some lateral margin */
@@ -339,8 +467,8 @@ nav h1 a {
   margin-right: auto;
 }
 
-.reviews__title { /* using title instead of h2 to split structure from stile */
-  color: #f58500;
+.reviews__title { /* using title instead of h2 to split structure from style */
+  color: #A81800;
   font-size: 24pt;
   font-weight: 300;
   letter-spacing: -1px;
@@ -362,6 +490,74 @@ nav h1 a {
   padding: 0 20px 20px;
   /* position: relative; /* not necessary */
   /* width: 85%; /* not neccessary */
+}
+
+.reviews__list__item__offline {
+  float: right;
+  color: gray;
+}
+
+.reviews__form {
+  background-color: white;
+  border: 2px solid #f3f3f3;
+  padding: 16px 8px;
+  overflow: hidden;
+}
+
+.reviews__form__title {
+  color: #A81800;
+  font-size: 24pt;
+}
+
+/* Move labels away to make them available to screen readers */
+.reviews__form label {
+  position: absolute;
+  top: -999999px;
+  left: -999999px;
+}
+
+.reviews__form__name,
+.reviews__form__rating,
+.reviews__form__comments {
+  width: 100%;
+  padding: 4px;
+  margin: 3px 0;
+  box-sizing: border-box; /* Avoid boxes from overflow container*/
+  border: 1px solid silver;
+}
+
+.reviews__form__name:focus,
+.reviews__form__rating:focus,
+.reviews__form__comments:focus {
+  outline: solid orange 4px;
+}
+
+.reviews__form__comments {
+  /* TODO: limit horizontal resize*/
+  min-height: 200px;
+  resize: vertical; /* Do not let user to resize horizontally and break layout*/
+}
+
+/* TODO: refactor duplication? too similar to 'favorites button' */
+.reviews__form__button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 32px;
+  font-size: 12pt;
+  min-width: 210px;
+  border: solid white 4px;
+  background: #333;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  float: right; /* combined with container overflow:hidden, align right */
+}
+
+.reviews__form__button:focus,
+.reviews__form__button:hover {
+    outline: none;
+    border: solid orange 4px;
+    border-radius: 32px;
 }
 
 @media screen and (min-width: 900px) {

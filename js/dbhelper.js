@@ -1,11 +1,6 @@
 /**
  * Common database helper functions.
  */
-
-
-
-
-
 class DBHelper {
 
 	/**
@@ -16,12 +11,19 @@ class DBHelper {
 	}
 
 	/**
+	 * Collection restaurants reviews
+	 */
+	static get COLLECTION_REVIEWS() {
+		return 'reviews';
+	}
+
+	/**
 	 * Open database RestaurantReviews
 	 */
 	static openDb(callback) { // TODO: use promises
 		let db;
 		let DatabaseName = 'RestaurantReviews';
-		let DatabaseVersion = 13;
+		let DatabaseVersion = 14;
 
 		let dbOpenRequest = indexedDB.open(DatabaseName, DatabaseVersion);
 		dbOpenRequest.onerror = function() {
@@ -46,8 +48,10 @@ class DBHelper {
 
 			let db = this.result;
 
-			// Create collection
+			// Create collections
 			let restaurantsStore = db.createObjectStore(DBHelper.COLLECTION_RESTAURANTS, { keyPath: 'id' });
+			let reviewsStore = db.createObjectStore(DBHelper.COLLECTION_REVIEWS, { keyPath: 'id' });
+		    reviewsStore.createIndex('restaurant_id', 'restaurant_id', { unique: false });
 
 			// TODO: interesting values:
 			//  - restaurantsStore // IDBObjectStore
@@ -131,6 +135,74 @@ class DBHelper {
 	}
 
 	/**
+	 * Put a review with key 'id'. If repeated it will be overwritten.
+	 * Callback is a function with two parameters (err, event)
+	 * If err === null -> all is ok.
+	 */
+	// TODO: refactor, duplicated/similar code
+	static putReview(review, callback) { // TODO: use promises
+		DBHelper.openDb(db => {
+			let tx = db.transaction([DBHelper.COLLECTION_REVIEWS], 'readwrite');
+			tx.oncomplete = function(e) {
+				callback && callback(null, e);
+			};
+			tx.onerror = function(e) {
+				console.log('transaction error', e);
+				callback && callback(e, null);
+			};
+
+			tx.objectStore(DBHelper.COLLECTION_REVIEWS).put(review);
+		});
+	}
+
+	/**
+	 * Retrieve all reviews from a restaurant
+	 */
+	static listRestaurantReviews(restaurantId, callback) { // TODO: use promises
+		DBHelper.openDb(db => {
+			let reviews = [];
+
+			let tx = db.transaction([DBHelper.COLLECTION_REVIEWS], 'readonly');
+			tx.oncomplete = function(e) {
+				callback && callback(null, reviews);
+			}
+			tx.onerror = function(e) {
+				console.log('read transaction error', e);
+				callback && callback(e, null);
+			}
+
+			// index('restaurant_id').openKeyCursor(IDBKeyRange.only(restaurantId))
+
+			tx.objectStore(DBHelper.COLLECTION_REVIEWS).openCursor().onsuccess = function(event) {
+				let cursor = this.result;
+				//console.log(cursor, this.result, cursor.value);
+				if (cursor) {
+					// Workaround until get openKeyCursor working...
+					if (restaurantId == cursor.value.restaurant_id) {
+						reviews.push(cursor.value);
+					}
+					cursor.continue();
+				}
+			};
+		});
+	}
+
+	/**
+	 * Remove existing restaurant review from indexedDb by id
+	 */
+	static removeRestaurantReview(reviewId) {
+		return new Promise(function(resolve, reject) {
+			DBHelper.openDb(db => {
+				let tx = db.transaction([DBHelper.COLLECTION_REVIEWS], 'readwrite');
+				tx.oncomplete = resolve;
+				tx.onerror = reject;
+
+				tx.objectStore(DBHelper.COLLECTION_REVIEWS).delete(reviewId);
+			})
+		});
+	}
+
+	/**
 	 * Database URL.
 	 * Change this to restaurants.json file location on your server.
 	 */
@@ -147,6 +219,8 @@ class DBHelper {
 			DBHelper.prototype.restaurants_promise = fetch(DBHelper.BASE_URL + '/restaurants')
 				.then(response => response.json())
 				.then(function(restaurants) {
+					// Sanitize restaurants
+					restaurants.map(DBHelper.sanitizeRestaurant);
 					// Save restaurants to make them available offline in the future
 					restaurants.map(restaurant => DBHelper.putRestaurant(restaurant));
 					return restaurants;
@@ -172,14 +246,30 @@ class DBHelper {
 	}
 
 	/**
+	 * Sanitize restaurant
+	 */
+	static sanitizeRestaurant(restaurant) {
+		if (restaurant.is_favorite === true || restaurant.is_favorite === "true") {
+			restaurant.is_favorite = true;
+		} else {
+			restaurant.is_favorite = false;
+		}
+		return restaurant;
+	}
+
+	/**
 	 * Fetch a restaurant by its ID.
 	 */
 	static fetchRestaurantById(id) {
 
 		// First, try to fetch from network
-		return fetch(DBHelper.BASE_URL + '/restaurants/' + id)
+		return fetch(DBHelper.BASE_URL + '/restaurants/' + id) // TODO: encodeURIComponent
 			.then(response => response.json())
 			.then(function(restaurant) {
+
+				// Sanitize restaurant
+				DBHelper.sanitizeRestaurant(restaurant);
+
 				// Save restaurant to make it available offline in the future
 				DBHelper.putRestaurant(restaurant, function() {
 					// TODO: handle error on save
@@ -275,6 +365,96 @@ class DBHelper {
 			});
 	}
 
+	static favoriteRestaurant(id, favorite) {
+		const url = DBHelper.BASE_URL + `/restaurants/${id}/?is_favorite=${favorite}`;
+
+		DBHelper.fetchRestaurantById(id, function(restaurant) {
+			restaurant.is_favorite = favorite;
+			DBHelper.putRestaurant(restaurant);
+		});
+
+		// TODO: store this request to be processed when connection is back
+		return fetch(url, {method:'POST'});
+	}
+
+	static fetchRestaurantReviews(id) {
+		const url = DBHelper.BASE_URL + `/reviews/?restaurant_id=${id}`;
+
+		return fetch(url)
+			.then(response => response.json())
+			.then(function(reviews) {
+				// TODO: sanitize reviews?
+
+				// Update local copy
+				reviews.map(review => DBHelper.putReview(review));
+
+				return reviews;
+			})
+			.catch(function() {
+				// TODO: catch error
+				console.log(`Network not working for restaurant ${id} reviews, fallback...`);
+				return new Promise(function(resolve, reject) {
+					DBHelper.listRestaurantReviews(id, function(error, reviews) {
+						if (error) {
+							reject(error);
+							return;
+						}
+						resolve(reviews);
+					})
+				});
+			});
+	}
+
+	static sendReview(review) {
+		// Send request
+		const payload = {
+			restaurant_id: review.restaurant_id,
+			name: review.name,
+			rating: review.rating,
+			comments: review.comments,
+		};
+		const url = DBHelper.BASE_URL + `/reviews/`;
+		return fetch(url, {method: 'POST', body: JSON.stringify(payload)})
+			.then(response => response.json())
+			.then(function(body) {
+				// Remove review with old id
+				DBHelper.removeRestaurantReview(review.id);
+				// Insert review again with real generated id
+				review.id = body.id;
+				review.pending = false;
+				DBHelper.putReview(review);
+			});
+	}
+
+	static writeReview(review) {
+
+		review.pending = true;
+
+		// Add to local database
+		review.id = (new Date()).getTime();
+		DBHelper.putReview(review);
+
+		// Send request
+		DBHelper.retrySendReviews(review);
+	}
+
+	static retrySendReviews() {
+		DBHelper.openDb(db => {
+			let reviews = [];
+			let tx = db.transaction([DBHelper.COLLECTION_REVIEWS], 'readonly');
+			tx.objectStore(DBHelper.COLLECTION_REVIEWS).openCursor().onsuccess = function(event) {
+				let cursor = this.result;
+				if (cursor) {
+					// Workaround until get openKeyCursor working...
+					if (cursor.value.pending) {
+						DBHelper.sendReview(cursor.value);
+					}
+					cursor.continue();
+				}
+			};
+		});
+	}
+
 	/**
 	 * Restaurant page URL.
 	 */
@@ -319,4 +499,20 @@ class DBHelper {
 		return marker;
 	}
 
+}
+
+window.addEventListener('online',  function(e) {
+	document.body.classList.remove('offline');
+	// Try to resend info
+	DBHelper.retrySendReviews();
+});
+
+window.addEventListener('offline', function(e) {
+	document.body.classList.add('offline');
+});
+
+if (navigator.onLine) {
+	DBHelper.retrySendReviews();
+} else {
+	document.body.classList.add('offline');
 }

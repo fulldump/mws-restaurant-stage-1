@@ -46,6 +46,15 @@
 				<h2 class="details__name" id="restaurant-name"></h1>
 				<img class="details__img" id="restaurant-img" src="" alt="">
 				<p class="details__cuisine" id="restaurant-cuisine"></p>
+				<p class="details__favorite" data-favorite="false">
+					<!--
+						TODO: remove dead code
+						<button class="details__favorite__mark" aria-label="Mark as favorite"> Mark favorite</button>
+						<button class="details__favorite__unmark" aria-label="Unmark as favorite"> Unmark favorite</button>
+						<br>
+					-->
+					<button class="button-favorite" aria-label="Mark as favorite"></button>
+				</p>
 				<p class="details__address" id="restaurant-address"></p>
 				<table class="details__hours" id="restaurant-hours"></table>
 			</section>
@@ -53,7 +62,30 @@
 
 			<!-- Beginning reviews -->
 			<section id="reviews-container" class="reviews">
+				<h3 class="reviews__title">Reviews</h3>
 				<ul id="reviews-list" class="reviews__list"></ul>
+				<form id="reviews-form" class="reviews__form">
+
+					<h4 class="reviews__form__title">Write a review</h4>
+
+					<label for="reviews-form-name">
+						Name
+					</label>
+					<input id="reviews-form-name" class="reviews__form__name" placeholder="Name" type="text" required>
+
+					<label for="reviews-form-rating">
+						Rating (1 to 5)
+					</label>
+					<!-- TODO: replace input by stars -->
+					<input id="reviews-form-rating" class="reviews__form__rating" placeholder="Rating (1 to 5)" type="number" min="1" max="5" required>
+
+					<label for="reviews-form-comments">
+						Comments
+					</label>
+					<textarea id="reviews-form-comments" class="reviews__form__comments" placeholder="Comments" required></textarea>
+
+					<button class="reviews__form__button" aria-label="Send review">Send review</button>
+				</form>
 			</section>
 			<!-- End reviews -->
 		</main>
@@ -64,6 +96,8 @@
 			Copyright (c) 2017 <a href="/"><strong>Restaurant Reviews</strong></a> All Rights Reserved.
 		</footer>
 		<!-- End footer -->
+
+		<div class="offline-icon" aria-label="offline" title="Offline">📶</div>
 
 		<!-- Beginning scripts -->
 		<script src="js/swregister.js"></script>

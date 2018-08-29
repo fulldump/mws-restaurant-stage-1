@@ -64,12 +64,74 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
 	const cuisine = document.getElementById('restaurant-cuisine');
 	cuisine.textContent = restaurant.cuisine_type; // textContent instead of innerHTML
 
+	const button_favorite = document.querySelector('.button-favorite');
+	button_favorite.dataset.favorite = restaurant.is_favorite;
+	button_favorite.addEventListener('click', function(e) {
+		// Calculate new value
+		restaurant.is_favorite = !restaurant.is_favorite;
+
+		// Save value
+		DBHelper.favoriteRestaurant(restaurant.id, restaurant.is_favorite);
+
+		// Draw changes
+		drawFavorite(restaurant.is_favorite);
+	}, true);
+	drawFavorite(restaurant.is_favorite);
+
 	// fill operating hours
 	if (restaurant.operating_hours) {
 		fillRestaurantHoursHTML();
 	}
+
 	// fill reviews
 	fillReviewsHTML();
+	buildReviewsForm();
+}
+
+function buildReviewsForm() {
+
+	const form = document.getElementById('reviews-form');
+	const name = document.getElementById('reviews-form-name');
+	const rating = document.getElementById('reviews-form-rating');
+	const comments = document.getElementById('reviews-form-comments');
+
+	form.addEventListener('submit', function(e) {
+		/*
+			Capturing this event take advantage of HTML5 form validations and
+			reduce submit interaction to a single point. (There are several
+			ways to submit a form: button, enter key, ...)
+		*/
+		e.stopPropagation();
+		e.preventDefault();
+
+		const review = {
+			restaurant_id: getParameterByName('id'),
+			name: name.value,
+			rating: rating.value,
+			comments: comments.value,
+			self: true,
+			pending: true,
+		};
+
+		// Do things with data review
+		DBHelper.writeReview(review);
+
+		// Paint
+		const ul = document.getElementById('reviews-list');
+		ul.appendChild(createReviewHTML(review));
+
+		// Auto hide form
+		form.style.display = 'none';
+	}, true);
+
+}
+
+function drawFavorite(is_favorite) {
+	const button_favorite = document.querySelector('.button-favorite');
+	button_favorite.dataset.favorite = is_favorite;
+
+	var description = window.getComputedStyle(button_favorite, ':after').getPropertyValue('content');
+	button_favorite.setAttribute('aria-label', description);
 }
 
 /**
@@ -95,24 +157,20 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
 /**
  * Create all reviews HTML and add them to the webpage.
  */
-fillReviewsHTML = (reviews = self.restaurant.reviews) => {
-	const container = document.getElementById('reviews-container');
-	const title = document.createElement('h3');
-	title.classList.add('reviews__title')
-	title.textContent = 'Reviews'; // textContent instead of innerHTML
-	container.appendChild(title);
+fillReviewsHTML = (restaurant = self.restaurant) => {
 
-	if (!reviews) {
-		const noReviews = document.createElement('p');
-		noReviews.textContent = 'No reviews yet!'; // textContent instead of innerHTML
-		container.appendChild(noReviews);
-		return;
-	}
-	const ul = document.getElementById('reviews-list');
-	reviews.forEach(review => {
-		ul.appendChild(createReviewHTML(review));
+	DBHelper.fetchRestaurantReviews(restaurant.id).then(function(reviews) {
+		if (!reviews) {
+			const noReviews = document.createElement('p');
+			noReviews.textContent = 'No reviews yet! Be the first one writing a review for this restaurant!'; // textContent instead of innerHTML
+			container.appendChild(noReviews);
+			return;
+		}
+		const ul = document.getElementById('reviews-list');
+		reviews.forEach(review => {
+			ul.appendChild(createReviewHTML(review));
+		});
 	});
-	container.appendChild(ul);
 }
 
 /**
@@ -121,6 +179,16 @@ fillReviewsHTML = (reviews = self.restaurant.reviews) => {
 createReviewHTML = (review) => {
 	const li = document.createElement('li');
 	li.classList.add('reviews__list__item');
+
+	/* // TODO: experiment, put icon if the review is waiting to be sent...
+	if (review.pending) {
+		const offline = document.createElement('div');
+		offline.className = 'reviews__list__item__offline';
+		offline.textContent = '📶';
+		li.appendChild(offline);
+	}
+	*/
+
 	const name = document.createElement('p');
 	name.textContent = review.name; // textContent instead of innerHTML
 	li.appendChild(name);

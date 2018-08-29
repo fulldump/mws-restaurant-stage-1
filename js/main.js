@@ -142,6 +142,14 @@ createRestaurantHTML = (restaurant) => {
 	article.append(header);
 
 	{
+		if (restaurant.is_favorite) {
+			// Unicode hearts: ♥♡
+			const heart = document.createElement('div');
+			heart.className = 'restaurant_favorite'
+			heart.textContent = '♥';
+			header.append(heart);
+		}
+
 		// TODO: Layout is depending on image aspect ratio!
 		const image = document.createElement('img');
 		image.className = 'restaurant__image';
@@ -177,7 +185,8 @@ createRestaurantHTML = (restaurant) => {
 		const more = document.createElement('a');
 		more.className = 'restaurant__more';
 		more.textContent = 'View Details'; // textContent instead of innerHTML
-		more.setAttribute('aria-label', 'View ' + restaurant.name + ' details');
+		const fav = restaurant.is_favorite ? 'my favorite restaurant ' : '';
+		more.setAttribute('aria-label', 'View details of ' + fav + restaurant.name);
 		more.href = DBHelper.urlForRestaurant(restaurant);
 		footer.append(more);
 	}
