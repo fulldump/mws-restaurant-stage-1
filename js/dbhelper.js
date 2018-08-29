@@ -294,7 +294,7 @@ class DBHelper {
 	}
 
 	static favoriteRestaurant(id, favorite) {
-		const url = `http://localhost:1337/restaurants/${id}/?is_favorite=${favorite}`;
+		const url = DBHelper.BASE_URL + `/restaurants/${id}/?is_favorite=${favorite}`;
 
 		DBHelper.fetchRestaurantById(id, function(restaurant) {
 			restaurant.is_favorite = favorite;
