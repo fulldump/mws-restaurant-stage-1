@@ -20,6 +20,14 @@ self.addEventListener('install', function(e) {
 	console.log('service-worker-install!!!');
 
 	// TODO: initialize caches with static assets and an initial version of data
+	e.waitUntil(caches.open(dataCache).then(cache => {
+		cache.addAll([
+			'/',
+			'/js/main.js',
+			'/restaurant.html',
+			'/js/restaurant_info.js',
+		]);
+	}));
 });
 
 self.addEventListener('activate', function(e) {
@@ -41,7 +49,7 @@ self.addEventListener('fetch', function(e) {
 });
 
 function fetchCachedPreferred(request) {
-	return caches.match(request).then(function(cachedResponse){
+	return caches.match(request, {ignoreSearch: true}).then(function(cachedResponse){
 		// If cachedResponse is cached, it is returned
 		if (cachedResponse) {
 			return cachedResponse;
@@ -74,6 +82,7 @@ function fetchNetworkPreferred(request) {
 		return;
 	}
 
+
 	// Always tries to fetch the resource
 	return fetch(request).then(function(response) {
 		const responseCloned = response.clone();
@@ -85,7 +94,7 @@ function fetchNetworkPreferred(request) {
 		return response;
 	}).catch(function() {
 		// If network is not available, try to get resource from cache
-		return caches.match(request);
+		return caches.match(request, {ignoreSearch: true});
 	});
 }
 
