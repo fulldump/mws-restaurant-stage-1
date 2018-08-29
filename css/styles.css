@@ -127,7 +127,7 @@ nav h1 a {
 
 /* Add a color to all links inside the list */
 .breadcrumb li a {
-    color: #0275d8;
+    color: #A81800;
     text-decoration: none;
 }
 
@@ -294,7 +294,7 @@ nav h1 a {
 /* ====================== Restaurant Details ====================== */
 
 .details__name {
-  color: #f18200;
+  color: #A81800;
   font-family: Arial,sans-serif;
   font-size: 20pt;
   font-weight: 200;
@@ -451,7 +451,7 @@ nav h1 a {
 }
 
 .reviews__title { /* using title instead of h2 to split structure from style */
-  color: #f58500;
+  color: #A81800;
   font-size: 24pt;
   font-weight: 300;
   letter-spacing: -1px;
@@ -483,7 +483,7 @@ nav h1 a {
 }
 
 .reviews__form__title {
-  color: orange;
+  color: #A81800;
   font-size: 24pt;
 }
 
