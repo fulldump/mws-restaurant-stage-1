@@ -154,7 +154,12 @@ createRestaurantHTML = (restaurant) => {
 		const image = document.createElement('img');
 		image.className = 'restaurant__image';
 		DBHelper.imageSetRestaurant(image, restaurant);
-		image.alt = restaurant.photograph_description;
+		if (restaurant.photograph_description) {
+			image.alt = restaurant.photograph_description;
+		} else {
+			// photograph description fallback:
+			image.alt = restaurant.name + ' restaurant';
+		}
 		header.append(image);
 
 		const name = document.createElement('h2');
