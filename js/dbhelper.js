@@ -147,6 +147,8 @@ class DBHelper {
 			DBHelper.prototype.restaurants_promise = fetch(DBHelper.BASE_URL + '/restaurants')
 				.then(response => response.json())
 				.then(function(restaurants) {
+					// Sanitize restaurants
+					restaurants.map(DBHelper.sanitizeRestaurant);
 					// Save restaurants to make them available offline in the future
 					restaurants.map(restaurant => DBHelper.putRestaurant(restaurant));
 					return restaurants;
@@ -172,21 +174,29 @@ class DBHelper {
 	}
 
 	/**
+	 * Sanitize restaurant
+	 */
+	static sanitizeRestaurant(restaurant) {
+		if (restaurant.is_favorite === true || restaurant.is_favorite === "true") {
+			restaurant.is_favorite = true;
+		} else {
+			restaurant.is_favorite = false;
+		}
+		return restaurant;
+	}
+
+	/**
 	 * Fetch a restaurant by its ID.
 	 */
 	static fetchRestaurantById(id) {
 
 		// First, try to fetch from network
-		return fetch(DBHelper.BASE_URL + '/restaurants/' + id)
+		return fetch(DBHelper.BASE_URL + '/restaurants/' + id) // TODO: encodeURIComponent
 			.then(response => response.json())
 			.then(function(restaurant) {
 
 				// Sanitize restaurant
-				if (restaurant.is_favorite === true || restaurant.is_favorite === "true") {
-					restaurant.is_favorite = true;
-				} else {
-					restaurant.is_favorite = false;
-				}
+				sanitizeRestaurant(restaurant);
 
 				// Save restaurant to make it available offline in the future
 				DBHelper.putRestaurant(restaurant, function() {
