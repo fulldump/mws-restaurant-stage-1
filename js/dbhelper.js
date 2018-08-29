@@ -3,8 +3,18 @@
  */
 
 
+window.addEventListener('online',  function(e) {
+	document.body.classList.remove('offline');
+	// TODO: try to resend info
+});
 
+window.addEventListener('offline', function(e) {
+	document.body.classList.add('offline');
+});
 
+if (!navigator.onLine) {
+	document.body.classList.add('offline');
+}
 
 class DBHelper {
 

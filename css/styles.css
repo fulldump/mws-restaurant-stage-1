@@ -291,6 +291,23 @@ nav h1 a {
 
 }
 
+/* ====================== Offline icon ============================ */
+.offline-icon {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 9999;
+  display: none;
+  color: yellow;
+  text-shadow: black 1px 1px 1px;
+  font-size: 32px;
+  padding: 6px 12px;
+}
+
+.offline .offline-icon {
+  display: block;
+}
+
 /* ====================== Restaurant Details ====================== */
 
 .details__name {
