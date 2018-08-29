@@ -450,7 +450,7 @@ nav h1 a {
   margin-right: auto;
 }
 
-.reviews__title { /* using title instead of h2 to split structure from stile */
+.reviews__title { /* using title instead of h2 to split structure from style */
   color: #f58500;
   font-size: 24pt;
   font-weight: 300;
@@ -473,6 +473,69 @@ nav h1 a {
   padding: 0 20px 20px;
   /* position: relative; /* not necessary */
   /* width: 85%; /* not neccessary */
+}
+
+.reviews__form {
+  background-color: white;
+  border: 2px solid #f3f3f3;
+  padding: 16px 8px;
+  overflow: hidden;
+}
+
+.reviews__form__title {
+  color: orange;
+  font-size: 24pt;
+}
+
+/* Move labels away to make them available to screen readers */
+.reviews__form label {
+  position: absolute;
+  top: -999999px;
+  left: -999999px;
+}
+
+.reviews__form__name,
+.reviews__form__rating,
+.reviews__form__comments {
+  width: 100%;
+  padding: 4px;
+  margin: 3px 0;
+  box-sizing: border-box; /* Avoid boxes from overflow container*/
+  border: 1px solid silver;
+}
+
+.reviews__form__name:focus,
+.reviews__form__rating:focus,
+.reviews__form__comments:focus {
+  outline: solid orange 4px;
+}
+
+.reviews__form__comments {
+  /* TODO: limit horizontal resize*/
+  min-height: 200px;
+  resize: vertical; /* Do not let user to resize horizontally and break layout*/
+}
+
+/* TODO: refactor duplication? too similar to 'favorites button' */
+.reviews__form__button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 32px;
+  font-size: 12pt;
+  min-width: 210px;
+  border: solid white 4px;
+  background: #333;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  float: right; /* combined with container overflow:hidden, align right */
+}
+
+.reviews__form__button:focus,
+.reviews__form__button:hover {
+    outline: none;
+    border: solid orange 4px;
+    border-radius: 32px;
 }
 
 @media screen and (min-width: 900px) {

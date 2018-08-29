@@ -84,12 +84,46 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
 	}
 
 	// fill reviews
-	/*
-	DBHelper.fetchRestaurantReviews(restaurant.id).then(function(reviews) {
-		restaurant.reviews = reviews;
-	});
-	*/
 	fillReviewsHTML();
+	buildReviewsForm();
+}
+
+function buildReviewsForm() {
+
+	const form = document.getElementById('reviews-form');
+	const name = document.getElementById('reviews-form-name');
+	const rating = document.getElementById('reviews-form-rating');
+	const comments = document.getElementById('reviews-form-comments');
+
+	form.addEventListener('submit', function(e) {
+		/*
+			Capturing this event take advantage of HTML5 form validations and
+			reduce submit interaction to a single point. (There are several
+			ways to submit a form: button, enter key, ...)
+		*/
+		e.stopPropagation();
+		e.preventDefault();
+
+		const review = {
+			restaurant_id: getParameterByName('id'),
+			name: name.value,
+			rating: rating.value,
+			comments: comments.value,
+			self: true,
+			pending: true,
+		};
+
+		// Do things with data review
+		DBHelper.writeReview(review);
+
+		// Paint
+		const ul = document.getElementById('reviews-list');
+		ul.appendChild(createReviewHTML(review));
+
+		// Auto hide form
+		form.style.display = 'none';
+	}, true);
+
 }
 
 function drawFavorite(is_favorite) {
@@ -126,15 +160,9 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
 fillReviewsHTML = (restaurant = self.restaurant) => {
 
 	DBHelper.fetchRestaurantReviews(restaurant.id).then(function(reviews) {
-		const container = document.getElementById('reviews-container');
-		const title = document.createElement('h3');
-		title.classList.add('reviews__title')
-		title.textContent = 'Reviews'; // textContent instead of innerHTML
-		container.appendChild(title);
-
 		if (!reviews) {
 			const noReviews = document.createElement('p');
-			noReviews.textContent = 'No reviews yet!'; // textContent instead of innerHTML
+			noReviews.textContent = 'No reviews yet! Be the first one writing a review for this restaurant!'; // textContent instead of innerHTML
 			container.appendChild(noReviews);
 			return;
 		}
@@ -142,7 +170,6 @@ fillReviewsHTML = (restaurant = self.restaurant) => {
 		reviews.forEach(review => {
 			ul.appendChild(createReviewHTML(review));
 		});
-		container.appendChild(ul);
 	});
 }
 

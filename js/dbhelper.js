@@ -146,7 +146,6 @@ class DBHelper {
 	 */
 	// TODO: refactor, duplicated/similar code
 	static putReview(review, callback) { // TODO: use promises
-		console.log('put review', review);
 		DBHelper.openDb(db => {
 			let tx = db.transaction([DBHelper.COLLECTION_REVIEWS], 'readwrite');
 			tx.oncomplete = function(e) {
@@ -394,6 +393,22 @@ class DBHelper {
 					})
 				});
 			});
+	}
+
+	static writeReview(review) {
+		// Add to local database
+		review.id = (new Date()).getTime();
+		DBHelper.putReview(review);
+
+		// Send request
+		const payload = {
+			restaurant_id: review.restaurant_id,
+			name: review.name,
+			rating: review.rating,
+			comments: review.comments,
+		};
+		const url = DBHelper.BASE_URL + `/reviews/`;
+		return fetch(url, {method: 'POST', body: JSON.stringify(payload)});
 	}
 
 	/**

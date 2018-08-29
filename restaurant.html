@@ -62,7 +62,30 @@
 
 			<!-- Beginning reviews -->
 			<section id="reviews-container" class="reviews">
+				<h3 class="reviews__title">Reviews</h3>
 				<ul id="reviews-list" class="reviews__list"></ul>
+				<form id="reviews-form" class="reviews__form">
+
+					<h4 class="reviews__form__title">Write a review</h4>
+
+					<label for="reviews-form-name">
+						Name
+					</label>
+					<input id="reviews-form-name" class="reviews__form__name" placeholder="Name" type="text" required>
+
+					<label for="reviews-form-rating">
+						Rating
+					</label>
+					<!-- TODO: replace input by stars -->
+					<input id="reviews-form-rating" class="reviews__form__rating" placeholder="1 to 5" type="number" min="1" max="5" required>
+
+					<label for="reviews-form-comments">
+						Comments
+					</label>
+					<textarea id="reviews-form-comments" class="reviews__form__comments" placeholder="Comments" required></textarea>
+
+					<button class="reviews__form__button">Send review</button>
+				</form>
 			</section>
 			<!-- End reviews -->
 		</main>
