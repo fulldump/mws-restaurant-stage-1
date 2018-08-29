@@ -258,7 +258,7 @@ class DBHelper {
 			.then(function(restaurant) {
 
 				// Sanitize restaurant
-				sanitizeRestaurant(restaurant);
+				DBHelper.sanitizeRestaurant(restaurant);
 
 				// Save restaurant to make it available offline in the future
 				DBHelper.putRestaurant(restaurant, function() {
