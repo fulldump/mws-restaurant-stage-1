@@ -59,7 +59,12 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
 
 	const image = document.getElementById('restaurant-img');
 	DBHelper.imageSetRestaurant(image, restaurant);
-	image.alt = restaurant.photograph_description;
+	if (restaurant.photograph_description) {
+		image.alt = restaurant.photograph_description;
+	} else {
+		// photograph description fallback:
+		image.alt = restaurant.name + ' restaurant';
+	}
 
 	const cuisine = document.getElementById('restaurant-cuisine');
 	cuisine.textContent = restaurant.cuisine_type; // textContent instead of innerHTML
@@ -183,7 +188,7 @@ createReviewHTML = (review) => {
 	/* // TODO: experiment, put icon if the review is waiting to be sent...
 	if (review.pending) {
 		const offline = document.createElement('div');
-		offline.className = 'reviews__list__item__offline';
+		offline.classList.add('reviews__list__item__offline');
 		offline.textContent = '📶';
 		li.appendChild(offline);
 	}
