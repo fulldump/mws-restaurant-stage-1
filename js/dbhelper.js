@@ -332,7 +332,7 @@ class DBHelper {
 	static favoriteRestaurant(id, favorite) {
 		const url = DBHelper.BASE_URL + `/restaurants/${id}/?is_favorite=${favorite}`;
 
-		DBHelper.fetchRestaurantById(id, function(restaurant) {
+		DBHelper.fetchRestaurantById(id).then(function(restaurant) {
 			restaurant.is_favorite = favorite;
 			DBHelper.putRestaurant(restaurant);
 		});
