@@ -138,21 +138,21 @@ createRestaurantHTML = (restaurant) => {
 	article.classList.add('restaurant');
 
 	const header = document.createElement('header');
-	header.className = 'restaurant__header';
+	header.classList.add('restaurant__header');
 	article.append(header);
 
 	{
 		if (restaurant.is_favorite) {
 			// Unicode hearts: ♥♡
 			const heart = document.createElement('div');
-			heart.className = 'restaurant_favorite'
+			heart.classList.add('restaurant_favorite');
 			heart.textContent = '♥';
 			header.append(heart);
 		}
 
 		// TODO: Layout is depending on image aspect ratio!
 		const image = document.createElement('img');
-		image.className = 'restaurant__image';
+		image.classList.add('restaurant__image');
 		DBHelper.imageSetRestaurant(image, restaurant);
 		if (restaurant.photograph_description) {
 			image.alt = restaurant.photograph_description;
@@ -169,7 +169,7 @@ createRestaurantHTML = (restaurant) => {
 	}
 
 	const main = document.createElement('main');
-	main.className = 'restaurant__main';
+	main.classList.add('restaurant__main');
 	article.append(main);
 
 	{
@@ -183,12 +183,12 @@ createRestaurantHTML = (restaurant) => {
 	}
 
 	const footer = document.createElement('footer');
-	footer.className = 'restaurant__footer';
+	footer.classList.add('restaurant__footer');
 	article.append(footer);
 
 	{
 		const more = document.createElement('a');
-		more.className = 'restaurant__more';
+		more.classList.add('restaurant__more');
 		more.textContent = 'View Details'; // textContent instead of innerHTML
 		const fav = restaurant.is_favorite ? 'my favorite restaurant ' : '';
 		more.setAttribute('aria-label', 'View details of ' + fav + restaurant.name);

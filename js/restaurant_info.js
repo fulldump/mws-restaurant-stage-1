@@ -188,7 +188,7 @@ createReviewHTML = (review) => {
 	/* // TODO: experiment, put icon if the review is waiting to be sent...
 	if (review.pending) {
 		const offline = document.createElement('div');
-		offline.className = 'reviews__list__item__offline';
+		offline.classList.add('reviews__list__item__offline');
 		offline.textContent = '📶';
 		li.appendChild(offline);
 	}
