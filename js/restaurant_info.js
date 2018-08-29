@@ -179,6 +179,16 @@ fillReviewsHTML = (restaurant = self.restaurant) => {
 createReviewHTML = (review) => {
 	const li = document.createElement('li');
 	li.classList.add('reviews__list__item');
+
+	/* // TODO: experiment, put icon if the review is waiting to be sent...
+	if (review.pending) {
+		const offline = document.createElement('div');
+		offline.className = 'reviews__list__item__offline';
+		offline.textContent = '📶';
+		li.appendChild(offline);
+	}
+	*/
+
 	const name = document.createElement('p');
 	name.textContent = review.name; // textContent instead of innerHTML
 	li.appendChild(name);

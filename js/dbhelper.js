@@ -1,21 +1,6 @@
 /**
  * Common database helper functions.
  */
-
-
-window.addEventListener('online',  function(e) {
-	document.body.classList.remove('offline');
-	// TODO: try to resend info
-});
-
-window.addEventListener('offline', function(e) {
-	document.body.classList.add('offline');
-});
-
-if (!navigator.onLine) {
-	document.body.classList.add('offline');
-}
-
 class DBHelper {
 
 	/**
@@ -199,6 +184,21 @@ class DBHelper {
 					cursor.continue();
 				}
 			};
+		});
+	}
+
+	/**
+	 * Remove existing restaurant review from indexedDb by id
+	 */
+	static removeRestaurantReview(reviewId) {
+		return new Promise(function(resolve, reject) {
+			DBHelper.openDb(db => {
+				let tx = db.transaction([DBHelper.COLLECTION_REVIEWS], 'readwrite');
+				tx.oncomplete = resolve;
+				tx.onerror = reject;
+
+				tx.objectStore(DBHelper.COLLECTION_REVIEWS).delete(reviewId);
+			})
 		});
 	}
 
@@ -405,11 +405,7 @@ class DBHelper {
 			});
 	}
 
-	static writeReview(review) {
-		// Add to local database
-		review.id = (new Date()).getTime();
-		DBHelper.putReview(review);
-
+	static sendReview(review) {
 		// Send request
 		const payload = {
 			restaurant_id: review.restaurant_id,
@@ -418,7 +414,45 @@ class DBHelper {
 			comments: review.comments,
 		};
 		const url = DBHelper.BASE_URL + `/reviews/`;
-		return fetch(url, {method: 'POST', body: JSON.stringify(payload)});
+		return fetch(url, {method: 'POST', body: JSON.stringify(payload)})
+			.then(response => response.json())
+			.then(function(body) {
+				// Remove review with old id
+				DBHelper.removeRestaurantReview(review.id);
+				// Insert review again with real generated id
+				review.id = body.id;
+				review.pending = false;
+				DBHelper.putReview(review);
+			});
+	}
+
+	static writeReview(review) {
+
+		review.pending = true;
+
+		// Add to local database
+		review.id = (new Date()).getTime();
+		DBHelper.putReview(review);
+
+		// Send request
+		DBHelper.retrySendReviews(review);
+	}
+
+	static retrySendReviews() {
+		DBHelper.openDb(db => {
+			let reviews = [];
+			let tx = db.transaction([DBHelper.COLLECTION_REVIEWS], 'readonly');
+			tx.objectStore(DBHelper.COLLECTION_REVIEWS).openCursor().onsuccess = function(event) {
+				let cursor = this.result;
+				if (cursor) {
+					// Workaround until get openKeyCursor working...
+					if (cursor.value.pending) {
+						DBHelper.sendReview(cursor.value);
+					}
+					cursor.continue();
+				}
+			};
+		});
 	}
 
 	/**
@@ -465,4 +499,20 @@ class DBHelper {
 		return marker;
 	}
 
+}
+
+window.addEventListener('online',  function(e) {
+	document.body.classList.remove('offline');
+	// Try to resend info
+	DBHelper.retrySendReviews();
+});
+
+window.addEventListener('offline', function(e) {
+	document.body.classList.add('offline');
+});
+
+if (navigator.onLine) {
+	DBHelper.retrySendReviews();
+} else {
+	document.body.classList.add('offline');
 }
