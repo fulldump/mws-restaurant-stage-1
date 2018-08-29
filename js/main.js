@@ -177,7 +177,7 @@ createRestaurantHTML = (restaurant) => {
 		neighborhood.textContent = restaurant.neighborhood; // textContent instead of innerHTML
 		main.append(neighborhood);
 
-		const address = document.createElement('p');
+		const address = document.createElement('address');
 		address.textContent = restaurant.address; // textContent instead of innerHTML
 		main.append(address);
 	}
